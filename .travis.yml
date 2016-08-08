@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: qnTnNvi6EP5E8qa/aalPT1m/kZ+T3Nubw1ECDKz8VjlzzEbJzBecSz4Zem7YkqBc+KCdY5tYCDfQlpa4RoAa6euSdsAnoBQ/hEPrHCycAwBmcJ2hQYx5TKcn4lewCukUHynYQYbxa6FhMazHZgs5RXY9x0sCtERT3RMcZAT0/5xl5QNdZ2sHo858Oo4Jw/KqUqJQQCLPEl4HAOdnEq9pV7Ko9gNfe66rTb0t8jNhAqE4nK0OSec01yVWmEWU2p3qlUV5vU92tRVHJ9maRlZfP4EkFF/NOeBv6zckg0kWZVmgY/ftnSBNPxCId6aTcfDDgJfiZWDMLECMfsKhY7cyU4Eyr+OTq8gIIuEyFjhlHmqlog+d3lJbPfknXGychuLGYAmh0cDz1rLet+/3UOv/+uPeKsSkKW/Qtf29S1sPDsYu+VEfcTPQQe+OLKBPC2AwuZTWhnkPMKav69E2UFd7C57H/GzgGlBDSF4tm3ox9VQloiI4qJUWEFUQ60R2Re0PGBwkHpjG9K5e3erToDhyTtfIRNtvpi1h8IGdFUqIVx/Xr2CtgSJq7aFun/g4qDLAO9dI0sX6FOBwdzmd5ha9ia68Eli9ZWuUSRCGxuK1R5tdF/FH/7BP4abk+M5WIIyly5S+Sly1gcQs/oGgtIAA0DCadqymolT6DjmwgqKYxl0=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Tom-Swift-Among-the-Diamond-Makers--Or-The-Secret-of-Phantom-Mountain_1282
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
